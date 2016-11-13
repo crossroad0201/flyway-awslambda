@@ -1,7 +1,11 @@
-Lambda function for AWS RDS Migration using Flyway.
-====
+Flyway AWS Lambda function.
+===========================
  
 **Now developing...**
+
+# What`s this?
+
+Lambda function for AWS RDS Migration using [Flyway](https://flywaydb.org).
 
 # Setup
 
@@ -17,6 +21,16 @@ s3://my-flyway
     - flyway.conf          <- Flyway configuration file.
     - V1__create_foo.sql   <- SQL file(s)
     - V2__create_bar.sql
+```
+
+### Flyway configuration
+
+`flyway.conf`
+
+```
+flyway.url = jdbc:mysql://RDS_ENDPOINT/DATABSE_NAME
+flyway.user = USER_NAME
+flyway.password = PASSWORD
 ```
 
 ## Deploy Lambda function
