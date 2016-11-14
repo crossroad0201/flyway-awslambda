@@ -14,7 +14,7 @@ import org.flywaydb.core.Flyway
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 class S3EventMigrationHandler extends RequestHandler[S3Event, String] {
   val FlywayConfFileName = "flyway.conf"
@@ -22,24 +22,27 @@ class S3EventMigrationHandler extends RequestHandler[S3Event, String] {
   override def handleRequest(event: S3Event, context: Context): String = {
     val logger = context.getLogger
 
-    val successCounts = event.getRecords.asScala.map(handleS3Event(_)(context))
+    val record = event.getRecords.get(0)
+    val successCount = handleS3Event(record)(context)
 
-    val message = s"Flyway migration(s) finished. ${successCounts.mkString(", ")}"
+    val message = s"Flyway migration(s) finished. $successCount"
     logger.log(message)
+
+    // TODO Put migration result to S3 as JSON
 
     message
   }
 
-  private def handleS3Event(event: S3EventNotificationRecord)(implicit context: Context) = {
+  private def handleS3Event(record: S3EventNotificationRecord)(implicit context: Context) = {
     val logger = context.getLogger
 
-    val s3 = event.getS3
+    val s3 = record.getS3
     val bucket = s3.getBucket
 
-    logger.log(s"Flyway migration start. by ${event.getEventName} s3://${bucket.getName}/${s3.getObject.getKey}")
+    logger.log(s"Flyway migration start. by ${record.getEventName} s3://${bucket.getName}/${s3.getObject.getKey}")
 
     def deploy(s3: S3Entity) = Try {
-      val s3Client: AmazonS3Client = new AmazonS3Client().withRegion(Region.getRegion(Regions.fromName(event.getAwsRegion)))
+      val s3Client: AmazonS3Client = new AmazonS3Client().withRegion(Region.getRegion(Regions.fromName(record.getAwsRegion)))
       val tmpDir = Files.createDirectories(Paths.get("/tmp", context.getAwsRequestId))
 
       @tailrec
@@ -71,7 +74,7 @@ class S3EventMigrationHandler extends RequestHandler[S3Event, String] {
             val _acc = x.getKey match {
               case key if key.endsWith(FlywayConfFileName) => loadConf(key)
               case key if key.endsWith("/") => createDir(key)
-              case key => createSqlFile(key)
+              case key if key.endsWith(".sql") => createSqlFile(key)
             }
             deployInternal(xs, _acc)
         }
