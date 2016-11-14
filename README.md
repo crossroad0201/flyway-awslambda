@@ -1,9 +1,7 @@
 Flyway AWS Lambda function.
 ===========================
  
-**Now developing...**
-
-# What`s this?
+# What's this?
 
 Lambda function for AWS RDS Migration using [Flyway](https://flywaydb.org).
 
@@ -34,6 +32,12 @@ flyway.password = PASSWORD
 ```
 
 ## Deploy Lambda function
+
+### AWS Settings
+
+#### VPC Endpoint 
+
+Require [VPC Endpoint](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-endpoints.html) for access to S3 Bucket from Lambda functiion in VPC.
 
 ### Code
 
@@ -70,7 +74,7 @@ Add trigger `S3 to Lambda`.
 |----|----|----|
 |Bucket|Your Flyway migration bucket.|`my-flyway`|
 |Event type|`Object created`|-|
-|Prefix|Your Flyway migration files location.|`my-application`|
+|Prefix|Your Flyway migration files location.|`my-application/`|
 |Suffix|`sql`|-|
 
 
