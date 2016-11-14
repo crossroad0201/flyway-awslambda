@@ -31,13 +31,14 @@ flyway.user = USER_NAME
 flyway.password = PASSWORD
 ```
 
-## Deploy Lambda function
+## AWS Settings
 
-### AWS Settings
-
-#### VPC Endpoint 
+### VPC Endpoint 
 
 Require [VPC Endpoint](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-endpoints.html) for access to S3 Bucket from Lambda functiion in VPC.
+
+
+## Deploy Lambda function
 
 ### Code
 
@@ -83,3 +84,4 @@ Add trigger `S3 to Lambda`.
 Put Flyway SQL file to S3 bucket.
 
 Invoke flyway-lambda automatically by S3 event.
+Check CloudWatch log for result.
