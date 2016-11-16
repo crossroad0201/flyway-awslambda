@@ -47,11 +47,11 @@ Require [VPC Endpoint](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc
 
 * Download jar module from releases
   * Or build from source.(Require JDK, Scala, sbt)
-    ```
-    sbt assembly
-    ```
+```
+sbt assembly
+```
 
-* Upload `target/scala-x.x.x/flyway-awslambda-x.x.x.jar`.
+* Upload `flyway-awslambda-x.x.x.jar`.
 
 ### Configuration
 
