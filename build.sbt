@@ -18,6 +18,9 @@ lazy val flywayAwsLambda = (project in file(".")).settings {
     "com.amazonaws" % "aws-lambda-java-events" % "1.3.0",
     "com.amazonaws" % "aws-java-sdk-s3" % "1.11.53",
 
+    // Json
+    "io.spray" %%  "spray-json" % "1.3.2",
+
     // Test
     "org.scalatest" %% "scalatest" % "3.0.0" % Test
   )
