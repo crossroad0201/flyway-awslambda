@@ -38,8 +38,8 @@ object MigrationResultProtocol extends DefaultJsonProtocol {
   import spray.json._
 
   implicit val DateFormat = new RootJsonFormat[Date] {
+    override def write(value: Date): JsValue = if (value == null) JsNull else JsString(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(value))
     override def read(json: JsValue): Date = ???
-    override def write(value: Date): JsValue = JsString(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(value))
   }
   implicit val migrationInfoFormat = jsonFormat6(MigrationInfo.apply)
   implicit val migrationResultFormat = jsonFormat5(MigrationResult.apply)
