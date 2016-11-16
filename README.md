@@ -45,12 +45,13 @@ Require [VPC Endpoint](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc
 
 ### Code
 
-* Build lambda function module.
-```
-sbt assembly
-```
+* Download jar module from releases
+  * Or build from source.(Require JDK, Scala, sbt)
+    ```
+    sbt assembly
+    ```
 
-* Upload `target/scala-x.x.x/flywayAwsLambda-assembly-x.x.x.jar`.
+* Upload `target/scala-x.x.x/flyway-awslambda-x.x.x.jar`.
 
 ### Configuration
 
