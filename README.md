@@ -5,17 +5,20 @@ Flyway AWS Lambda function.
 
 Lambda function for AWS RDS Migration using [Flyway](https://flywaydb.org).
 
+EC2 instance is not necessary for DB migration.
+
+
 # Setup
 
-## Create S3 bucket
+## S3 bucket
 
-Put your Flyway resources to S3 bucket.
+Create S3 bucket and folder for Flyway resources.
  
 ### Bucket structure
 
 ```
-s3://my-flyway
-  - /my-application
+s3://my-flyway             <- Flyway migration bucket.
+  - /my-application        <- Flyway resource folder(prefix).
     - flyway.conf          <- Flyway configuration file.
     - V1__create_foo.sql   <- SQL file(s)
     - V2__create_bar.sql
@@ -23,7 +26,7 @@ s3://my-flyway
 
 ### Flyway configuration
 
-`flyway.conf`
+create Flyway configuration file named `flyway.conf` in resource folder.
 
 ```
 flyway.url = jdbc:mysql://RDS_ENDPOINT/DATABSE_NAME
@@ -35,7 +38,7 @@ flyway.password = PASSWORD
 
 ### VPC Endpoint 
 
-Require [VPC Endpoint](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-endpoints.html) for access to S3 Bucket from Lambda functiion in VPC.
+Require [VPC Endpoint](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/vpc-endpoints.html) for access to S3 Bucket from Lambda function in VPC.
 
 
 ## Deploy Lambda function
@@ -81,7 +84,9 @@ Add trigger `S3 to Lambda`.
 
 # Run
 
-Put Flyway SQL file to S3 bucket.
+Put Flyway SQL file into S3 resource folder.
 
 Invoke flyway-lambda automatically by S3 event.
-Check CloudWatch log for result.
+
+Check `migration-result.json` in S3 resource folder for result,
+and CloudWatch log for more detail.
