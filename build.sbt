@@ -1,12 +1,12 @@
 
-lazy val flywayAwsLambda = (project in file(".")).settings {
-  organization := "crossroad0201.aws"
-  name := "flyway-awslambda"
-  version := "0.1.0-SNAPSHOT"
-  scalaVersion := "2.12.0"
+lazy val flywayAwsLambda = (project in file(".")).settings(
+  organization := "crossroad0201.aws",
+  name := "flyway-awslambda",
+  version := "0.1.0",
+  scalaVersion := "2.12.0",
 
-  assemblyJarName in assembly := s"${name.value}-${version.value}.jar"
-  test in assembly := {}
+  assemblyJarName := s"${name.value}-${version.value}.jar",
+  test in assembly := {},
 
   libraryDependencies ++= Seq(
     // Flyway
@@ -24,5 +24,4 @@ lazy val flywayAwsLambda = (project in file(".")).settings {
     // Test
     "org.scalatest" %% "scalatest" % "3.0.0" % Test
   )
-
-}
+)
