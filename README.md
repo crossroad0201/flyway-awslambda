@@ -83,6 +83,26 @@ Add trigger `S3 to Lambda`.
 |Suffix|`sql`|-|
 
 
+# Setup by CloudFormation
+
+You can setup `flyway-awslambda` automatically using CloudFormation.
+See sample templates in `src/main/aws`. 
+
+* `flyway-awslambda-x.x.x.jar` module put in your any bucket.
+
+* Create stack by template `1-rds.yaml`.
+Create RDS Aurora cluster.
+
+* Create stack by template `2-flyway-awslambda.yaml`.
+Create **flyway-awslambda** function.
+
+* Put `flyway.conf` configuration file in Flyway migration bucket.
+
+## Note
+
+* Require delete ENI(Elastic Network Interface) entry for VPC Lambda before delete stack `1-rds.yaml`.  
+A ENI entry for VPC Lambda create by stack `2-flyway-awslambda.yaml`, but this ENI entry does not delete automatically.
+
 # Run
 
 Put Flyway SQL file into S3 resource folder.

@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create flyway-awslambda function.
+Outputs:
+  RDSMigrationBucket:
+    Description: Run DB migration when put SQL files here.
+    Value:
+      Ref: RDSMigrationBucket
+Resources:
+  RDSMigrationLambda:
+    Type : AWS::Lambda::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: flyway-awslambda-dbmigration
+      Description:
+        Fn::Sub: RDS migration for flyway-awslambda
+      Code:
+        S3Bucket: flyway-awslambda
+        S3Key:
+          Fn::Sub: modules/flyway-awslambda-0.1.0.jar
+      Handler: crossroad0201.aws.flywaylambda.S3EventMigrationHandler::handleRequest
+      Role:
+        Fn::GetAtt:
+          - RDSMigrationRole
+          - Arn
+      Runtime: java8
+      MemorySize: 1536
+      Timeout: 300
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue:
+              Fn::Sub: flyway-awslambda-RDSClientSecurityGroup
+        SubnetIds:
+          - Fn::ImportValue:
+              Fn::Sub: flyway-awslambda-RDSSubnet1
+          - Fn::ImportValue:
+              Fn::Sub: flyway-awslambda-RDSSubnet2
+  RDSMigrationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: flyway-lambda
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonRDSFullAccess
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+  RDSMigrationVPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      RouteTableIds:
+        - Ref: RDSMigrationRouteTable
+      ServiceName:
+        Fn::Sub: com.amazonaws.${AWS::Region}.s3
+      VpcId:
+        Fn::ImportValue:
+          Fn::Sub: flyway-awslambda-VPC
+  RDSMigrationRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda-rdsmigration
+      VpcId:
+        Fn::ImportValue:
+          Fn::Sub: flyway-awslambda-VPC
+  RDSMigrationSubnertRouteTable1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: RDSMigrationRouteTable
+      SubnetId:
+        Fn::ImportValue:
+          Fn::Sub: flyway-awslambda-RDSSubnet1
+  RDSMigrationSubnertRouteTable2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: RDSMigrationRouteTable
+      SubnetId:
+        Fn::ImportValue:
+          Fn::Sub: flyway-awslambda-RDSSubnet2
+  RDSMigrationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: flyway-awslambda-dbmigration
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: flyway/
+                  - Name: suffix
+                    Value: .sql
+            Function:
+              Fn::GetAtt:
+                - RDSMigrationLambda
+                - Arn
+  RDSMigrationLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::GetAtt:
+          - RDSMigrationLambda
+          - Arn
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceAccount:
+        Ref: AWS::AccountId

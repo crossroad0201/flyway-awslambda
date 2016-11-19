@@ -1,0 +1,200 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create RDS Aurora cluster.
+Outputs:
+  VPC:
+    Value:
+      Ref: VPC
+    Export:
+      Name:
+        Fn::Sub: flyway-awslambda-VPC
+  RDSSubnet1:
+    Description: Subnet for RDS.
+    Value:
+      Ref: RDSSubnet1
+    Export:
+      Name:
+        Fn::Sub: flyway-awslambda-RDSSubnet1
+  RDSSubnet2:
+    Description: Subnet for RDS.
+    Value:
+      Ref: RDSSubnet2
+    Export:
+      Name:
+        Fn::Sub: flyway-awslambda-RDSSubnet2
+  RDSSecurityGroup:
+    Value:
+      Ref: RDSSecurityGroup
+  RDSClientSecurityGroup:
+    Description: Require this Security group for connect to RDS.
+    Value:
+      Ref: RDSClientSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: flyway-awslambda-RDSClientSecurityGroup
+  RDSCluster:
+    Value:
+      Ref: RDSCluster
+  RDSInstance:
+    Value:
+      Ref: RDSInstance
+  RDSClusterEndPointAddress:
+    Description: RDS endpoint host name.
+    Value:
+      Fn::GetAtt:
+        - RDSCluster
+        - Endpoint.Address
+  RDSClusterEndPointPort:
+    Description: RDS endpoint port.
+    Value:
+      Fn::GetAtt:
+        - RDSCluster
+        - Endpoint.Port
+    Export:
+      Name:
+        Fn::Sub: flyway-awslambda-RDSClusterEndPointPort
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: "true"
+      EnableDnsSupport: "true"
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda
+  RDSSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - "0"
+          - Fn::GetAZs:
+              Ref: AWS::Region
+      CidrBlock: 10.0.200.0/24
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda-subnet1
+      VpcId:
+        Ref: VPC
+  RDSSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+          - "1"
+          - Fn::GetAZs:
+              Ref: AWS::Region
+      CidrBlock: 10.0.201.0/24
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda-subnet2
+      VpcId:
+        Ref: VPC
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription:
+        Fn::Sub: flyway-awslambda
+      SubnetIds:
+        - Ref: RDSSubnet1
+        - Ref: RDSSubnet2
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:
+        Fn::Sub: flyway-awslambda RDS
+      VpcId:
+        Ref: VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "3306"
+          ToPort: "3306"
+          SourceSecurityGroupId:
+            Fn::GetAtt:
+              - RDSClientSecurityGroup
+              - GroupId
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda-rds
+  RDSClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:
+        Fn::Sub: flyway-awslambda RDS Client
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: flyway-awslambda-rds-client
+      VpcId:
+        Ref: VPC
+  RDSClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Description:
+        Fn::Sub: flyway-awslambda
+      Family: aurora5.6
+      Parameters:
+        binlog_format: MIXED
+        character_set_client: utf8mb4
+        character_set_connection: utf8mb4
+        character_set_database: utf8mb4
+        character_set_filesystem: utf8mb4
+        character_set_results: utf8mb4
+        character_set_server: utf8mb4
+        collation_connection: utf8mb4_unicode_ci
+        collation_server: utf8mb4_unicode_ci
+        innodb_file_per_table: 1
+  RDSDBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description:
+        Fn::Sub: flyway-awslambda
+      Family: aurora5.6
+      Parameters:
+        autocommit: "1"
+        automatic_sp_privileges: "1"
+        binlog_cache_size: "32768"
+        explicit_defaults_for_timestamp: "1"
+        innodb_adaptive_flushing: "1"
+        innodb_file_format: Barracuda
+        innodb_flush_method: O_DIRECT
+        innodb_large_prefix: "1"
+        key_buffer_size: "16777216"
+  RDSCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: aurora
+      MasterUsername: root
+      MasterUserPassword: flywayawslambda
+      DatabaseName: flywayawslambda
+      DBSubnetGroupName:
+        Ref: RDSSubnetGroup
+      VpcSecurityGroupIds:
+        - Ref: RDSSecurityGroup
+      DBClusterParameterGroupName:
+        Ref: RDSClusterParameterGroup
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: aurora
+      DBInstanceClass: db.r3.large
+      DBSubnetGroupName:
+        Ref: RDSSubnetGroup
+      DBClusterIdentifier:
+        Ref: RDSCluster
+      DBInstanceIdentifier:
+        Fn::Sub: flyway-awslambda
+      DBParameterGroupName:
+        Ref: RDSDBParameterGroup
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Sub: flyway-awslambda
