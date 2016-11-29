@@ -98,9 +98,13 @@ class S3EventMigrationHandler extends RequestHandler[S3Event, String] {
         val objectKey = s3.getObject.getKey
         objectKey.substring(0, objectKey.lastIndexOf("/"))
       }
-      val objects = s3Client.listObjects(bucket.getName, migrationPrefix)
-
-      deployInternal(objects.getObjectSummaries.asScala.toList, (None, ListBuffer())) match {
+      val objectSummaries = {
+        val objects = s3Client.listObjects(bucket.getName, migrationPrefix)
+        objects.getObjectSummaries.asScala.toList.sortWith { (x, y) =>
+          x.getKey.compareTo(y.getKey) < 1
+        }
+      }
+      deployInternal(objectSummaries, (None, ListBuffer())) match {
         case (Some(conf), sqlFiles) =>
           FlywayDeployment(
             bucket.getName,
