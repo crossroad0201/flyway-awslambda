@@ -12,9 +12,9 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
 
-class S3SourceFlywayDeployer(s3Client: AmazonS3, srcBucketName: String, srcPrefix: String) extends FlywayDeployer {
+class S3SourceFlywayDeployer(s3Client: AmazonS3, srcBucketName: String, srcPrefix: String, flywayConfFileName: String) extends FlywayDeployer {
 
-  def deploy(flywayConfFileName: String)(implicit context: Context): Try[FlywayDeployment] = Try {
+  def deploy(implicit context: Context): Try[FlywayDeployment] = Try {
     val logger = context.getLogger
 
     val tmpDir = Files.createDirectories(Paths.get("/tmp", context.getAwsRequestId))

@@ -6,6 +6,6 @@ import scala.util.Try
 
 trait FlywayDeployer {
 
-  def deploy(flywayConfFileName: String)(implicit context: Context): Try[FlywayDeployment]
+  def deploy(implicit context: Context): Try[FlywayDeployment]
 
 }

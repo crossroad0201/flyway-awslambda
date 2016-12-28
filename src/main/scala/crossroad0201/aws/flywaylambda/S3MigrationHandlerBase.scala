@@ -45,7 +45,7 @@ trait S3MigrationHandlerBase extends FlywayMigrator {
 
     for {
       // Deploy Flyway resources.
-      d <- new S3SourceFlywayDeployer(s3Client, bucketName, prefix).deploy(flywayConfFileName)
+      d <- new S3SourceFlywayDeployer(s3Client, bucketName, prefix, flywayConfFileName).deploy
       _ = {
         logger.log(
           s"""--- Flyway configuration ------------------------------------

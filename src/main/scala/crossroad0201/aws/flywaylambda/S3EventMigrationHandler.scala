@@ -7,9 +7,9 @@ import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client}
 
 import scala.util.{Failure, Success}
 
-class S3EventMigrationHandler extends RequestHandler[S3Event, String] with S3MigrationHandlerBase {
+class S3EventMigrationHandler extends RequestHandler[S3Event, Unit] with S3MigrationHandlerBase {
 
-  override def handleRequest(event: S3Event, context: Context): String = {
+  override def handleRequest(event: S3Event, context: Context): Unit = {
     val logger = context.getLogger
 
     implicit val s3Client: AmazonS3 = new AmazonS3Client().withRegion(Region.getRegion(Regions.fromName(event.getRecords.get(0).getAwsRegion)))
@@ -23,12 +23,8 @@ class S3EventMigrationHandler extends RequestHandler[S3Event, String] with S3Mig
     }
 
     migrate(s3.getBucket.getName, migrationPrefix)(context, s3Client) match {
-      case Success(r) =>
-        logger.log(r)
-        r
-      case Failure(e) =>
-        e.printStackTrace()
-        e.toString
+      case Success(r) => logger.log(r)
+      case Failure(e) => e.printStackTrace()
     }
   }
 
