@@ -1,10 +1,8 @@
-package crossroad0201.aws.flywaylambda
+package crossroad0201.aws.flywaylambda.migration
 
-import java.text.SimpleDateFormat
 import java.util.Date
 
 import org.flywaydb.core.api.{MigrationInfo => FlywayMigrationInfo}
-import spray.json.DefaultJsonProtocol
 
 case class MigrationResult(
   last_status: String,
@@ -34,13 +32,4 @@ object MigrationInfo {
   }
 }
 
-object MigrationResultProtocol extends DefaultJsonProtocol {
-  import spray.json._
 
-  implicit val DateFormat = new RootJsonFormat[Date] {
-    override def write(value: Date): JsValue = if (value == null) JsNull else JsString(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(value))
-    override def read(json: JsValue): Date = ???
-  }
-  implicit val migrationInfoFormat = jsonFormat6(MigrationInfo.apply)
-  implicit val migrationResultFormat = jsonFormat5(MigrationResult.apply)
-}
