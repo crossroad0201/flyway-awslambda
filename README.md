@@ -7,6 +7,10 @@ Lambda function for AWS RDS Migration using [Flyway](https://flywaydb.org).
 
 EC2 instance is not necessary for DB migration.
 
+This Lambda function is supporting 2 migration methods.
+
+1. Automatic migration by put SQL file into S3.
+1. Manual migration by invoking yourself. (Since 0.2.0)
 
 # Setup
 
@@ -58,10 +62,18 @@ sbt assembly
 ||value|
 |----|----|
 |Runtime|`Java 8`|
-|Handler|`crossroad0201.aws.flywaylambda.S3EventMigrationHandler::handleRequest`|
+|Handler|See `Handler` section.|
 |Role|See `Role` section.|
 |Timeout|`5 min.`|
 |VPC|Same VPC as target RDS.|
+
+#### Handler
+
+* `crossroad0201.aws.flywaylambda.S3EventMigrationHandler`  
+Run migration automatically when put SQL file into S3 bucket.
+
+* `crossroad0201.aws.flywaylambda.InvokeMigrationHandler` (Since 0.2.0)  
+Run migration invoke Lambda function yourself.
 
 #### Role
 
@@ -73,7 +85,7 @@ Require policies.
 
 ### Triggers
 
-Add trigger `S3 to Lambda`.
+Require setting trigger `S3 to Lambda` if using `S3EventMigrationHandler`.
 
 ||value|Example|
 |----|----|----|
@@ -85,7 +97,7 @@ Add trigger `S3 to Lambda`.
 
 # Setup by CloudFormation
 
-You can setup `flyway-awslambda` automatically using CloudFormation.
+You can setup `flyway-awslambda` automatically using CloudFormation.  
 See sample templates in `src/main/aws`. 
 
 * `flyway-awslambda-x.x.x.jar` module put in your any bucket.
@@ -105,9 +117,29 @@ A ENI entry for VPC Lambda create by stack `2-flyway-awslambda.yaml`, but this E
 
 # Run
 
-Put Flyway SQL file into S3 resource folder.
+## Using S3EventMigrationHandler
+
+Put Flyway SQL file into S3 resource folder.(**one by one!!!**)
 
 Invoke flyway-lambda automatically by S3 event.
 
 Check `migration-result.json` in S3 resource folder for result,
+and CloudWatch log for more detail.
+
+## Using InvokeMigrationHandler
+
+Put Flyway SQL file(s) into S3 resource folder.
+ 
+And invoke flyway-lambda function yourself with the following json payload.
+(invoke by AWS console, CLI, any application...etc. see [CLI example](./invoke_flywaylambda.sh))
+
+```json
+{
+  "bucket_name": "my-flyway",
+  "prefix": "my-application",
+  "flyway_conf": "flyway.conf"  // Optional. Default 'flyway.conf'
+}
+```
+
+Check result message or `migration-result.json` in S3 resource folder for result,
 and CloudWatch log for more detail.

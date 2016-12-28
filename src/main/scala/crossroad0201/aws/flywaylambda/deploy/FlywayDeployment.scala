@@ -1,7 +1,7 @@
-package crossroad0201.aws.flywaylambda
+package crossroad0201.aws.flywaylambda.deploy
 
-import java.util.{ Properties => JProperties}
 import java.nio.file.Path
+import java.util.{Properties => JProperties}
 
 case class FlywayDeployment(
   sourceBucket: String,

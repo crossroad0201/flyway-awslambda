@@ -2,7 +2,7 @@
 lazy val flywayAwsLambda = (project in file(".")).settings(
   organization := "crossroad0201.aws",
   name := "flyway-awslambda",
-  version := "0.1.1-SNAPSHOT",
+  version := "0.2.0-SNAPSHOT",
   scalaVersion := "2.12.0",
 
   assemblyJarName := s"${name.value}-${version.value}.jar",
