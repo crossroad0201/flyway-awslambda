@@ -18,6 +18,7 @@ class S3SourceFlywayDeployer(s3Client: AmazonS3, srcBucketName: String, srcPrefi
     val logger = context.getLogger
 
     val tmpDir = Files.createDirectories(Paths.get("/tmp", context.getAwsRequestId))
+    Files.createDirectories(Paths.get(tmpDir.toString, srcPrefix))
 
     @tailrec
     def deployInternal(objects: List[S3ObjectSummary], acc: (Option[JProperties], ListBuffer[Path])): (Option[JProperties], Seq[Path]) = {
@@ -61,6 +62,9 @@ class S3SourceFlywayDeployer(s3Client: AmazonS3, srcBucketName: String, srcPrefi
         x.getKey.compareTo(y.getKey) < 1
       }
     }
+
+    logger.log(s"Deploying Flyway resources from $srcBucketName/$srcPrefix... ${objectSummaries.map(_.getKey).mkString(", ")}")
+
     deployInternal(objectSummaries, (None, ListBuffer())) match {
       case (Some(conf), sqlFiles) =>
         FlywayDeployment(
