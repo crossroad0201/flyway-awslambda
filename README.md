@@ -38,6 +38,12 @@ flyway.user = USER_NAME
 flyway.password = PASSWORD
 ```
 
+#### Supported options.
+
+See [Flyway - Config Files](https://flywaydb.org/documentation/configfiles) for option details.
+
+* `flyway.outOfOrder`
+
 ## AWS Settings
 
 ### VPC Endpoint 

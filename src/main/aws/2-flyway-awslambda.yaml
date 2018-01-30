@@ -16,7 +16,7 @@ Resources:
       Code:
         S3Bucket: flyway-awslambda
         S3Key:
-          Fn::Sub: modules/flyway-awslambda-0.2.0.jar
+          Fn::Sub: modules/flyway-awslambda-0.3.0.jar
       Handler: crossroad0201.aws.flywaylambda.S3EventMigrationHandler::handleRequest
       Role:
         Fn::GetAtt:

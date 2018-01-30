@@ -18,6 +18,8 @@ trait FlywayMigrator {
       )
       flyway.setLocations(deployment.location)
 
+      deployment.options.map(_.apply(flyway))
+
       flyway.migrate
     }
 
