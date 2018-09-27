@@ -50,8 +50,8 @@ trait S3MigrationHandlerBase extends FlywayMigrator {
         logger.log(
           s"""--- Flyway configuration ------------------------------------
              |flyway.url      = ${d.url}
-             |flyway.user     = ${d.user}
-             |flyway.password = ${d.password}
+             |flyway.user     = ****
+             |flyway.password = ****
              |
              |SQL locations   = ${d.location}
              |SQL files       = ${d.sqlFiles.mkString(", ")}
