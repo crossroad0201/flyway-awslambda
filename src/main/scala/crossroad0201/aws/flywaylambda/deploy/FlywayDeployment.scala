@@ -38,6 +38,7 @@ object FlywayOption {
     import scala.collection.JavaConverters._
     conf.asScala.flatMap {
       case ("flyway.outOfOrder", enabled) => Some(OutOfOrder(enabled.toBoolean))
+      case ("flyway.cleanOnValidationError", enabled) => Some(CleanOnValidationError(enabled.toBoolean))
       case _ => None
     }.toSeq
   }
@@ -45,6 +46,13 @@ object FlywayOption {
 case class OutOfOrder(enabled: Boolean) extends FlywayOption {
   override def apply(flyway: Flyway) = {
     flyway.setOutOfOrder(enabled)
+    flyway
+  }
+}
+
+case class CleanOnValidationError(enabled: Boolean) extends FlywayOption {
+  override def apply(flyway: Flyway) = {
+    flyway.setCleanOnValidationError(enabled)
     flyway
   }
 }
