@@ -60,7 +60,7 @@ case class CleanOnValidationError(enabled: Boolean) extends FlywayOption {
 
 case class Schemas(schemas: Array[String]) extends FlywayOption {
   override def apply(flyway: Flyway) = {
-    flyway.setSchemas(schemas)
+    flyway.setSchemas(schemas: _*)
     flyway
   }
 }
