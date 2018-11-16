@@ -43,6 +43,8 @@ flyway.password = PASSWORD
 See [Flyway - Config Files](https://flywaydb.org/documentation/configfiles) for option details.
 
 * `flyway.outOfOrder`
+* `flyway.schemas`
+* `flyway.cleanOnValidationError`
 
 ## AWS Settings
 

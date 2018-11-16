@@ -39,6 +39,7 @@ object FlywayOption {
     conf.asScala.flatMap {
       case ("flyway.outOfOrder", enabled) => Some(OutOfOrder(enabled.toBoolean))
       case ("flyway.cleanOnValidationError", enabled) => Some(CleanOnValidationError(enabled.toBoolean))
+      case ("flyway.schemas", schemas) => Some(Schemas(schemas.split(",").map(_.trim)))
       case _ => None
     }.toSeq
   }
@@ -53,6 +54,13 @@ case class OutOfOrder(enabled: Boolean) extends FlywayOption {
 case class CleanOnValidationError(enabled: Boolean) extends FlywayOption {
   override def apply(flyway: Flyway) = {
     flyway.setCleanOnValidationError(enabled)
+    flyway
+  }
+}
+
+case class Schemas(schemas: Array[String]) extends FlywayOption {
+  override def apply(flyway: Flyway) = {
+    flyway.setSchemas(schemas)
     flyway
   }
 }
